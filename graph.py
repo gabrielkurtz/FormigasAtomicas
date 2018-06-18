@@ -26,8 +26,7 @@ class Edge:
 
 class Graph:
 
-	def __init__(self, num_vertex):
-		self.num_vertex = num_vertex 
+	def __init__(self):
 		self.edges = {} 
 		self.neighbors = {} 
 		self.locations = set()
@@ -56,7 +55,7 @@ class Graph:
 
 	def obterCustoCaminho(self, path):
 		cost = 0
-		for i in range(self.num_vertex - 1):
+		for i in range(len ( path ) - 1):
 			cost += self.obterCustoEdge(path[i], path[i+1])
 		
 		cost += self.obterCustoEdge(path[-1], path[0])

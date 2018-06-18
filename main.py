@@ -2,15 +2,29 @@ import csv
 from graph import Graph
 from ant_colony_optimization import Ant_Colony_Optimization
 
-FILENAME = "./graph3.csv"
+FILENAME = "./graph10.csv"
 
 if __name__ == "__main__":
-	graph = Graph(num_vertex=3)
-	with open( FILENAME , "r") as theFile:
-		reader = csv.DictReader(theFile)
-		for line in reader:
-			graph.addEdge(int(line['origin']), int(line['destination']), int(line['value']))
+	graph = Graph()
 
+	# with open( FILENAME , "r") as theFile:
+	# 	reader = csv.DictReader(theFile)
+	# 	for line in reader:
+	# 		graph.addEdge(int(line['origin']), int(line['destination']), int(line['value']))
+	# d = {'A':1, 'B':2, 'C':3, 'D':4, 'E':5, 'F':6, 'G':7, 'H':8}
+
+	# GEREADO A MAO 2
+	graph.addEdge(1,2,3)
+	graph.addEdge(2,4,3)
+	graph.addEdge(2,5,2)
+	graph.addEdge(4,5,3)
+	graph.addEdge(4,6,2)
+	graph.addEdge(5,2,2)
+	graph.addEdge(5,6,3)
+	graph.addEdge(6,1,3)
+
+
+	# GERADO A MAO 1
 	# graph.addEdge(d['B'], d['A'], 42)
 	# graph.addEdge(d['A'], d['B'], 42)
 	# graph.addEdge(d['C'], d['A'], 61)
@@ -68,7 +82,7 @@ if __name__ == "__main__":
 	# graph.addEdge(d['H'], d['G'], 59)
 	# graph.addEdge(d['G'], d['H'], 59)
 	
-	ant_colony_optimization = Ant_Colony_Optimization(graph=graph, num_ants=graph.num_vertex, alpha=1.0, beta=5.0, iterations=10, evaporation=0.5)
+	ant_colony_optimization = Ant_Colony_Optimization(graph=graph, num_ants = len( graph.locations ), alpha=1.0, beta=5.0, iterations=100, evaporation=0.5)
 	
 	ant_colony_optimization.run()
 	

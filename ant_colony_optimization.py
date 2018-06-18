@@ -27,57 +27,38 @@ class Ant_Colony_Optimization:
 		# reestrutura location como set
 		locations = self.graph.locations
 
-		# calcula o cost guloso pra usar na inicialização do feromônio
-		# cost = 0.0 # cost guloso
-		# initial_vertex = random.randint(1, locationsLength) # seleciona um vértice aleatório
-		# current_vertex = initial_vertex
-		# visited = [current_vertex] # lista de visited
-		# while True:
-		# 	neighbors = self.graph.neighbors[current_vertex][:]
-		# 	costs, chosen = [], {}
-		# 	for neighbor in neighbors:
-		# 		if neighbor not in visited:
-		# 			cost = self.graph.obterCustoEdge(current_vertex, neighbor)
-		# 			chosen[cost] = neighbor
-		# 			costs.append(cost)
-		# 	if len(visited) == self.locationsLength:
-		# 		break
-		# 	min_cost = min(costs) # pega o menor cost da lista
-		# 	cost += min_cost # adiciona o cost ao total
-		# 	current_vertex = chosen[min_cost] # atualiza o vértice corrente
-		# 	visited.append(current_vertex) # marca o vértice corrente como visitado
-
-		# # adiciona o cost do último visitado ao cost
-		# cost += self.graph.obterCustoEdge(visited[-1], initial_vertex)
-		# cost = 0.0;
-		# inicializa o feromônio de todas as edges
 		for key_edge in self.graph.edges:
 			# pheromone = 1.0 / (self.locationsLength * cost)
-			self.graph.setFeromonioEdge(key_edge[0], key_edge[1], 0.0)
+			self.graph.setFeromonioEdge(key_edge[0], key_edge[1], 0.1)
 
 	def run(self):
 
 		for it in range(self.iterations):
+			visited = []
 			for k in range(self.num_ants):
 				# adiciona a location de origin de cada ant
-				locations = [ self.ants[k].location ]
+				startLocation = self.ants[k].location
+				visited.append([startLocation])
 
 			# para cada ant constrói  solução
 			for k in range(self.num_ants):
 				# lista de listas com as locations visitadas por cada ant
-				visited = []
+				location = None
 				startLocation = self.ants[k].location
-				visited.append(startLocation)
+				
+				for i in range(0, self.locationsLength ):
 
-				for i in range(1, self.locationsLength ):
-					
-					location = None
 
+					if self.ants[k].location == None or self.ants[k].location not in self.graph.neighbors:
+						break
 					# obtém todos os neighbors que não foram visited
+
 					a = set(self.graph.neighbors[self.ants[k].location ])
 					b = set(visited[k])
 					not_visited = list( a - b )
 					
+					if(len (not_visited) == 0 ):
+						break
 					# somatório do conjunto de locations não visitadas pela ant "k"
 					# servirá para utilizar no cálculo da probability
 					sum = 0.0
@@ -100,16 +81,17 @@ class Ant_Colony_Optimization:
 						# obtém a probability
 						probability = (math.pow(pheromone, self.alpha) * math.pow(1.0 / distance, self.beta)) / (sum if sum > 0 else 1)
 						# adiciona na lista de probabilities
-						probabilities[location] = probability
+						probabilities[location] = random.uniform(0, 1) * probability
 
 					# obtém a location escolhida
 					chosen = max(probabilities, key=probabilities.get)
 
 					# adiciona a location escolhida a lista de locations visitadas pela ant "k"
+					self.ants[k].location = chosen;
 					visited[k].append(chosen)
 
 				# atualiza a solução encontrada pela ant
-				if startLocation in self.graph.neighbors[ location ]:
+				if location != None and location in self.graph.neighbors and startLocation in self.graph.neighbors[ location ] and len( visited[k] ) == len ( self.graph.locations ):
 					self.ants[k].setSolucao(visited[k], self.graph.obterCustoCaminho(visited[k]))
 
 			# atualiza quantidade de feromônio
@@ -118,9 +100,12 @@ class Ant_Colony_Optimization:
 				sum_pheromone = 0.0
 				# para cada ant "k"
 				for k in range(self.num_ants):
+					# Formiga Não chegou a achar solução
+					if len( self.ants[k].answer ) == 0:
+						continue
 					edges_ant = []
 					# gera todas as edges percorridas da ant "k"
-					for j in range(self.locationsLength - 1):
+					for j in range(len ( visited[k] ) - 1):
 						edges_ant.append((visited[k][j], visited[k][j+1]))
 					# adiciona a última edge
 					edges_ant.append((visited[k][-1], visited[k][0]))
@@ -144,4 +129,7 @@ class Ant_Colony_Optimization:
 				if aux_cost < cost:
 					answer = self.ants[k].obterSolucao()[:]
 					cost = aux_cost
-		print('Solução final: %s | cost: %d\n' % (' -> '.join(str(i) for i in answer), cost))
+		if answer == None or len( answer ) == 0:
+			print("Nenhuma solução encontrada")
+		else:
+			print('Solução final: %s | cost: %d\n' % (' -> '.join(str(i) for i in answer), cost))
