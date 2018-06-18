@@ -53,10 +53,10 @@ class Graph:
 	def setFeromonioEdge(self, origin, destination, pheromone):
 		self.edges[(origin, destination)].setFeromonio(pheromone)
 
-	def obterCustoCaminho(self, path):
+	def obterCustoCaminho(self, path, finish = False):
 		cost = 0
 		for i in range(len ( path ) - 1):
 			cost += self.obterCustoEdge(path[i], path[i+1])
-		
-		cost += self.obterCustoEdge(path[-1], path[0])
+		if finish:
+			cost += self.obterCustoEdge(path[-1], path[0])
 		return cost
