@@ -17,10 +17,12 @@ class Ant:
 	def setSolucao(self, answer, cost):
 		if not self.cost:
 			self.answer = answer[:]
+			self.answer.append(answer[0])
 			self.cost = cost
 		else:
 			if cost < self.cost:
 				self.answer = answer[:]
+				self.answer.append(answer[0])
 				self.cost = cost
 
 	def obterCustoSolucao(self):

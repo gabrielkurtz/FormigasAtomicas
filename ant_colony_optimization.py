@@ -1,7 +1,8 @@
 import random, math
 from graph import Graph
 from ant import Ant
-
+from plot import plot
+import matplotlib.pyplot as plt
 class Ant_Colony_Optimization:
 	
 	def __init__(self, graph, num_ants, alpha=1.0, beta=5.0, 
@@ -29,70 +30,95 @@ class Ant_Colony_Optimization:
 
 		for key_edge in self.graph.edges:
 			# pheromone = 1.0 / (self.locationsLength * cost)
-			self.graph.setFeromonioEdge(key_edge[0], key_edge[1], 0.1)
+			self.graph.setPherormoneEdge(key_edge[0], key_edge[1], 0.1)
 
 	def run(self):
+		''' Executa algoritmo de colônia de formigas '''
 
+		''' Adiciona a posição inicial como visitada '''
 		for it in range(self.iterations):
 			visited = []
 			for k in range(self.num_ants):
-				# adiciona a location de origin de cada ant
 				startLocation = self.ants[k].location
 				visited.append([startLocation])
 
-			# para cada ant constrói  solução
+			# Constroi uma solução para cada formiga
 			for k in range(self.num_ants):
-				# lista de listas com as locations visitadas por cada ant
+
 				location = None
 				startLocation = self.ants[k].location
 				
 				for i in range(0, self.locationsLength ):
+					'''
+					caso a formiga não esteja em nenhuma posição
+						ou
+					posição não tenha vizinhos / para onde ir
 
-
+					quebra iteração, não há solução ...
+					'''
 					if self.ants[k].location == None or self.ants[k].location not in self.graph.neighbors:
 						break
-					# obtém todos os neighbors que não foram visited
-
+					
+					# operação entre conjuntos para obter os não visitados
 					a = set(self.graph.neighbors[self.ants[k].location ])
 					b = set(visited[k])
 					not_visited = list( a - b )
 					
+					'''
+					se todos já foram visitados e não há mais para onde ir
+					quebra iteração, não há solução ...
+					'''
 					if(len (not_visited) == 0 ):
 						break
-					# somatório do conjunto de locations não visitadas pela ant "k"
-					# servirá para utilizar no cálculo da probability
+					# somatório do conjunto de locations não visitadas pela formiga "k"
+					# servirá para utilizar no cálculo da probabilidade
 					sum = 0.0
 					for location in not_visited:
 						# calcula o feromônio
-						pheromone =  self.graph.obterFeromonioEdge(self.ants[k].location , location)
+						pheromone =  self.graph.getPherormeneEdge(self.ants[k].location , location)
 						# obtém a distância
-						distance = self.graph.obterCustoEdge(self.ants[k].location , location)
+						distance = self.graph.getCostEdge(self.ants[k].location , location)
 						# adiciona no somatório
 						sum += (math.pow(pheromone, self.alpha) * math.pow(1.0 / distance, self.beta))
 
-					# probabilities de escolher um path
+					# probabilidades de escolher um caminho
 					probabilities = {}
 
 					for location in not_visited:
 						# calcula o feromônio
-						pheromone = self.graph.obterFeromonioEdge(self.ants[k].location , location)
+						pheromone = self.graph.getPherormeneEdge(self.ants[k].location , location) # self.graph.egdes[(self.ants[k].location, location)].pherormone
 						# obtém a distância
-						distance = self.graph.obterCustoEdge(self.ants[k].location , location)
+						distance = self.graph.getCostEdge(self.ants[k].location , location)
 						# obtém a probability
 						probability = (math.pow(pheromone, self.alpha) * math.pow(1.0 / distance, self.beta)) / (sum if sum > 0 else 1)
-						# adiciona na lista de probabilities
+						'''
+						adiciona na lista de probabilities
+						é multiplicado por um fator randomico para possibilitar a mutação
+						tendo em vista a distribuição sendo aleatória o caminho com maior probabilidade ainda é priorizado
+						'''
 						probabilities[location] = random.uniform(0, 1) * probability
 
-					# obtém a location escolhida
+					# obtém a 'location' escolhida
+					
 					chosen = max(probabilities, key=probabilities.get)
 
-					# adiciona a location escolhida a lista de locations visitadas pela ant "k"
-					self.ants[k].location = chosen;
+					'''
+					adiciona a location escolhida a lista de locations visitadas pela ant "k"
+					se 'movimenta' até a posição escolhida
+					'''
+					self.ants[k].location = chosen
 					visited[k].append(chosen)
 
-				# atualiza a solução encontrada pela ant
+				'''
+				atualiza a solução encontrada pela ant
+				se houverem locações
+				se houver ligação entre a posição inicial do grafo e a localização final
+				e se todas as edges foram visitadas
+
+				adiciona ao custo calculado a ultima ligação entre o primeiro o ultimo nodo
+				'''
 				if location != None and location in self.graph.neighbors and startLocation in self.graph.neighbors[ location ] and len( visited[k] ) == len ( self.graph.locations ):
-					self.ants[k].setSolucao(visited[k], self.graph.obterCustoCaminho(visited[k]))
+					self.ants[k].setSolucao(visited[k], self.graph.getPathCost(visited[k],  finish = True))
 
 			# atualiza quantidade de feromônio
 			for edge in self.graph.edges:
@@ -111,11 +137,11 @@ class Ant_Colony_Optimization:
 					edges_ant.append((visited[k][-1], visited[k][0]))
 					# verifica se a edge faz parte do path da ant "k"
 					if edge in edges_ant:
-						sum_pheromone += (1.0 / self.graph.obterCustoCaminho(visited[k]))
-				# calcula o new feromônio
-				new_pheromone = (1.0 - self.evaporation) * self.graph.obterFeromonioEdge(edge[0], edge[1]) + sum_pheromone
-				# seta o new feromônio da edge
-				self.graph.setFeromonioEdge(edge[0], edge[1], new_pheromone)
+						sum_pheromone += (1.0 / self.graph.getPathCost(visited[k]))
+				# calcula o novo ferormonio
+				new_pheromone = (1.0 - self.evaporation) * self.graph.getPherormeneEdge(edge[0], edge[1]) + sum_pheromone
+				# seta o novo feromônio da edge
+				self.graph.setPherormoneEdge(edge[0], edge[1], new_pheromone)
 
 
 		# percorre para obter as soluções das ants
@@ -132,4 +158,5 @@ class Ant_Colony_Optimization:
 		if answer == None or len( answer ) == 0:
 			print("Nenhuma solução encontrada")
 		else:
-			print('Solução final: %s | cost: %d\n' % (' -> '.join(str(i) for i in answer), cost))
+			print('Solução final: %s | cost: %d\n' % (' >> '.join(str(i) for i in answer) , cost))
+			plot( answer )

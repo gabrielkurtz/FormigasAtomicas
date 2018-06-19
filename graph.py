@@ -44,19 +44,19 @@ class Graph:
 	def getLocationsList(self):
 		return list ( self.locations )
 
-	def obterCustoEdge(self, origin, destination):
-		return self.edges[(origin, destination)].obterCusto()
+	def getCostEdge(self, origin, destination):
+		return self.edges[(origin, destination)].cost
 
-	def obterFeromonioEdge(self, origin, destination):
-		return self.edges[(origin, destination)].obterFeronomio()
+	def getPherormeneEdge(self, origin, destination):
+		return self.edges[(origin, destination)].pheromone
 
-	def setFeromonioEdge(self, origin, destination, pheromone):
-		self.edges[(origin, destination)].setFeromonio(pheromone)
+	def setPherormoneEdge(self, origin, destination, pheromone):
+		self.edges[(origin, destination)].pheromone = pheromone
 
-	def obterCustoCaminho(self, path, finish = False):
+	def getPathCost(self, path, finish = False):
 		cost = 0
 		for i in range(len ( path ) - 1):
-			cost += self.obterCustoEdge(path[i], path[i+1])
+			cost += self.getCostEdge(path[i], path[i+1])
 		if finish:
-			cost += self.obterCustoEdge(path[-1], path[0])
+			cost += self.getCostEdge(path[-1], path[0])
 		return cost
