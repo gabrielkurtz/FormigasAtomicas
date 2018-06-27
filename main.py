@@ -9,7 +9,7 @@ FILENAME = "./graph10.csv"
 if __name__ == "__main__":
 	graph = Graph()
 
-	with open( FILENAME , "r") as theFile:
+	with open( FILENAME , "r" ) as theFile:
 		reader = csv.DictReader(theFile)
 		for line in reader:
 			graph.addEdge(int(line['origin']), int(line['destination']), int(line['value']))
