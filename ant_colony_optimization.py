@@ -18,7 +18,7 @@ class Ant_Colony_Optimization:
 
 		locations = self.graph.getLocationsList()
 		# cria as ants colocando cada uma em uma location diferente
-		for k in range(self.num_ants):
+		for _ in range(self.num_ants):
 			location_ant = random.choice(locations)
 			locations.remove(location_ant)
 			self.ants.append(Ant(location=location_ant))
@@ -30,13 +30,13 @@ class Ant_Colony_Optimization:
 
 		for key_edge in self.graph.edges:
 			# pheromone = 1.0 / (self.locationsLength * cost)
-			self.graph.setPherormoneEdge(key_edge[0], key_edge[1], 0.1)
+			self.graph.setPheromoneEdge(key_edge[0], key_edge[1], 0.1)
 
 	def run(self):
 		''' Executa algoritmo de colônia de formigas '''
 
 		''' Adiciona a posição inicial como visitada '''
-		for it in range(self.iterations):
+		for _ in range(self.iterations):
 			visited = []
 			for k in range(self.num_ants):
 				startLocation = self.ants[k].location
@@ -48,7 +48,7 @@ class Ant_Colony_Optimization:
 				location = None
 				startLocation = self.ants[k].location
 				
-				for i in range(0, self.locationsLength ):
+				for _ in range(0, self.locationsLength ):
 					'''
 					caso a formiga não esteja em nenhuma posição
 						ou
@@ -75,7 +75,7 @@ class Ant_Colony_Optimization:
 					sum = 0.0
 					for location in not_visited:
 						# calcula o feromônio
-						pheromone =  self.graph.getPherormeneEdge(self.ants[k].location , location)
+						pheromone =  self.graph.getPheromoneEdge(self.ants[k].location , location)
 						# obtém a distância
 						distance = self.graph.getCostEdge(self.ants[k].location , location)
 						# adiciona no somatório
@@ -86,7 +86,7 @@ class Ant_Colony_Optimization:
 
 					for location in not_visited:
 						# calcula o feromônio
-						pheromone = self.graph.getPherormeneEdge(self.ants[k].location , location) # self.graph.egdes[(self.ants[k].location, location)].pherormone
+						pheromone = self.graph.getPheromoneEdge(self.ants[k].location , location) # self.graph.egdes[(self.ants[k].location, location)].Pheromone
 						# obtém a distância
 						distance = self.graph.getCostEdge(self.ants[k].location , location)
 						# obtém a probability
@@ -139,9 +139,9 @@ class Ant_Colony_Optimization:
 					if edge in edges_ant:
 						sum_pheromone += (1.0 / self.graph.getPathCost(visited[k]))
 				# calcula o novo ferormonio
-				new_pheromone = (1.0 - self.evaporation) * self.graph.getPherormeneEdge(edge[0], edge[1]) + sum_pheromone
+				new_pheromone = (1.0 - self.evaporation) * self.graph.getPheromoneEdge(edge[0], edge[1]) + sum_pheromone
 				# seta o novo feromônio da edge
-				self.graph.setPherormoneEdge(edge[0], edge[1], new_pheromone)
+				self.graph.setPheromoneEdge(edge[0], edge[1], new_pheromone)
 
 
 		# percorre para obter as soluções das ants

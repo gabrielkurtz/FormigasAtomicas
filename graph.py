@@ -47,10 +47,10 @@ class Graph:
 	def getCostEdge(self, origin, destination):
 		return self.edges[(origin, destination)].cost
 
-	def getPherormeneEdge(self, origin, destination):
+	def getPheromoneEdge(self, origin, destination):
 		return self.edges[(origin, destination)].pheromone
 
-	def setPherormoneEdge(self, origin, destination, pheromone):
+	def setPheromoneEdge(self, origin, destination, pheromone):
 		self.edges[(origin, destination)].pheromone = pheromone
 
 	def getPathCost(self, path, finish = False):
